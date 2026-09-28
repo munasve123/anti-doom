@@ -100,6 +100,13 @@ describe("decide: path normalisation", () => {
   });
 });
 
+describe("decide: undecodable paths", () => {
+  it("stays put rather than guessing", () => {
+    expect(decide("/%E0%A4%A/", DEFAULTS)).toBeNull();
+    expect(decide("/%E0%A4%A/", messagesOnly)).toBeNull();
+  });
+});
+
 describe("decide: never redirects in a loop", () => {
   const paths = [
     "/",
