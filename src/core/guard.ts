@@ -43,7 +43,10 @@ export function isInScope(location: {
   );
 }
 
-/** A single reel, at /reel/<id>/ or /<username>/reel/<id>/. Not a profile's /reels/ tab. */
+/**
+ * A single reel, at /reel/<id>/ or /<username>/reel/<id>/. Not a profile's /reels/ tab.
+ * Also matches the profile of a user literally named "reel", which is accepted as too rare to matter.
+ */
 const SINGLE_REEL = /^\/(?:[^/]+\/)?reel(?:\/|$)/;
 
 /** Returns where to send the browser instead of pathname, or null to stay. */
