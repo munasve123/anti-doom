@@ -1,4 +1,5 @@
-// Scans everything built into dist/ for forbidden primitives with plain regular expressions.
+// Scans everything built into dist/ (or the directory given as the first argument) for
+// forbidden primitives with plain regular expressions.
 // This is a second check, independent of ESLint, so a gap in one isn't a gap in both.
 // Never weaken it (SECURITY.md).
 //
@@ -6,12 +7,15 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
-const DIST = "dist";
+const DIST = process.argv[2] ?? "dist";
+const SCANNED = /\.(js|html|css)$/;
 const MAX_USERSCRIPT_BYTES = 150 * 1024;
 const MAX_AVERAGE_LINE_LENGTH = 120;
 
 const forbidden = [
-  [/\bfetch\b/, "fetch"],
+  [/\bfetch(Later)?\b/, "fetch"],
+  [/\bAudio\s*\(/, "new Audio"],
+  [/\bcaches\b/, "the Cache API"],
   [/\bXMLHttpRequest\b/, "XMLHttpRequest"],
   [/\bWebSocket\b/, "WebSocket"],
   [/\bWebTransport\b/, "WebTransport"],
@@ -31,8 +35,8 @@ const forbidden = [
   [/\b(window|globalThis|self)\.open\s*\(/, "window.open"],
   [/(^|[^.\w$])open\s*\(/, "open()"],
   [
-    /\.(innerHTML|outerHTML|src|srcset|srcdoc|href)\s*=(?!=)/,
-    "assigning innerHTML, outerHTML, src, or href",
+    /\.(innerHTML|outerHTML|src|srcset|srcdoc|href|action|formAction)\s*=(?!=)/,
+    "assigning innerHTML, outerHTML, src, href, or action",
   ],
   [
     /\binsertAdjacentHTML\b|\bcreateContextualFragment\b|\bdocument\.write/,
@@ -43,10 +47,17 @@ const forbidden = [
     "setting a URL or handler attribute",
   ],
   [
-    /createElement(NS)?\s*\([^)]*["'](script|img|image|iframe|frame|link|object|embed)["']/i,
-    "creating a script, img, iframe, link, object, or embed element",
+    /createElement(NS)?\s*\([^)]*["'](script|img|image|iframe|frame|link|object|embed|form|meta|base|audio|video|source|track|area|portal)["']/i,
+    "creating an element that loads a URL, submits, or redirects",
   ],
+  [
+    /location\s*\.\s*(assign|replace)\s*\(\s*(?!["'`]\/(?!\/))/,
+    "location.assign or replace without a same-origin path literal",
+  ],
+  [/\blocation\s*=(?!=)/, "assigning location"],
+  [/url\s*\(|@import/i, "CSS url() or @import"],
   [/https?:\/\//, "a URL outside the userscript metadata block"],
+  [/["'`(=]\s*\/\/[\w-]+\.[\w.-]/, "a protocol-relative URL"],
 ];
 
 function listFiles(dir) {
@@ -66,13 +77,13 @@ function withoutMetadata(text) {
 
 let files;
 try {
-  files = listFiles(DIST).filter((file) => file.endsWith(".js"));
+  files = listFiles(DIST).filter((file) => SCANNED.test(file));
 } catch {
   files = [];
 }
 if (files.length === 0) {
   console.error(
-    "check:bundle: no .js files in dist/. Run npm run build first.",
+    `check:bundle: no .js, .html, or .css files in ${DIST}. Run npm run build first.`,
   );
   process.exit(1);
 }
@@ -101,7 +112,7 @@ for (const file of files) {
   }
 
   if (
-    name === "dist/anti-doom.user.js" &&
+    name.endsWith("anti-doom.user.js") &&
     Buffer.byteLength(text) > MAX_USERSCRIPT_BYTES
   ) {
     failures.push(
