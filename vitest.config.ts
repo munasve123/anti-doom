@@ -8,7 +8,7 @@ export default defineConfig({
       provider: "v8",
       include: ["src/core/**/*.ts"],
       reporter: ["text-summary"],
-      thresholds: { lines: 90 },
+      thresholds: { lines: 90, perFile: true },
     },
   },
 });
