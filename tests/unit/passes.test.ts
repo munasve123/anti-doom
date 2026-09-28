@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { labelsFor } from "../../src/core/locale";
 import {
   HIDDEN_ATTR,
+  probe,
   runPasses,
   unmarkAll,
   type PassContext,
@@ -126,8 +127,15 @@ describe("story tray (C1)", () => {
   it("ignores story links inside posts", () => {
     byId("tray").remove();
     runPasses(context());
-    expect(isHidden("avatar-story")).toBe(false);
-    expect(hiddenIds()).not.toContain("feed");
+    expect(
+      byId("avatar-story").querySelectorAll(`[${HIDDEN_ATTR}]`),
+    ).toHaveLength(0);
+    expect(hiddenIds().sort()).toEqual([
+      "labelled",
+      "reel",
+      "suggested",
+      "tab-reels",
+    ]);
   });
 
   it("stops climbing before anything that holds posts, even without article elements", () => {
@@ -229,6 +237,24 @@ describe("navigation", () => {
     expect(isHidden("tab-create")).toBe(true);
     expect(isHidden("tab-search")).toBe(true);
     expect(isHidden("tab-direct")).toBe(false);
+  });
+});
+
+describe("robustness", () => {
+  it("re-evaluates a marked tab when React reuses it for another destination", () => {
+    byId("tab-reels").setAttribute("href", "/clips/");
+    runPasses(context());
+    expect(isHidden("tab-reels")).toBe(true);
+    const tab = byId("tab-reels");
+    tab.setAttribute("href", "/direct/inbox/");
+    tab.querySelector("svg")!.setAttribute("aria-label", "Direct");
+    runPasses(context());
+    expect(isHidden("tab-reels")).toBe(false);
+  });
+
+  it("treats a selector the engine rejects as no match instead of throwing", () => {
+    expect(probe(document, "a[")).toBe(false);
+    expect(probe(document, "main")).toBe(true);
   });
 });
 
