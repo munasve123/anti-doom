@@ -4,7 +4,12 @@
 export interface Storage {
   get(key: string): Promise<unknown>;
   set(key: string, value: unknown): Promise<void>;
-  /** Calls listener with the new value whenever key is set in this page. Returns unsubscribe. */
+  /**
+   * Calls listener with the new value whenever key is set in this page. Returns unsubscribe.
+   * Listeners may run before or after set() resolves, so callers mustn't rely on either order.
+   * Changes made in another tab aren't guaranteed to arrive: the userscript's grants
+   * (GM.getValue and GM.setValue only) can't observe them.
+   */
   subscribe(key: string, listener: (value: unknown) => void): () => void;
 }
 
