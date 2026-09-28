@@ -2,6 +2,8 @@
 
 Anti-Doom collects no data.
 
+Anti-Doom hasn't had a release yet. This statement describes how it's built, and applies to every release.
+
 - It sends nothing anywhere. The code contains no way to make a network request.
 - It has no accounts, analytics, advertising, or crash reporting.
 - It reads the structure of instagram.com pages (links, accessibility labels, layout) to decide what to hide. It doesn't read, store, or send your messages, posts, or anyone's names.
