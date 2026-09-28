@@ -51,9 +51,24 @@ const HOLDS_POSTS = `article, ${PERMALINK}`;
 const REEL_LINK = 'a[href*="/reel/"]';
 const BUTTON = 'button, [role="button"]';
 
+/**
+ * What a mark depends on. A post's permalink, or a link's own destination. If it changes, React
+ * has reused the node for something else, and the mark is dropped and re-evaluated.
+ */
 function keyOf(element: Element): string {
-  if (element.tagName !== "ARTICLE") return "";
-  return element.querySelector(PERMALINK)?.getAttribute("href") ?? "";
+  if (element.tagName === "ARTICLE") {
+    return element.querySelector(PERMALINK)?.getAttribute("href") ?? "";
+  }
+  return element.getAttribute("href") ?? "";
+}
+
+/** True if selector matches anything. A selector the engine rejects counts as no match. */
+export function probe(document: Document, selector: string): boolean {
+  try {
+    return document.querySelector(selector) !== null;
+  } catch {
+    return false;
+  }
 }
 
 function mark(element: Element, rule: RuleId): void {
@@ -240,7 +255,7 @@ export function runPasses(context: PassContext): PassResult {
         // The stylesheet does the hiding. Probe only where health needs the answer.
         hit =
           rule.health.kind === "structural" &&
-          document.querySelector(strategy.selector) !== null;
+          probe(document, strategy.selector);
       } else if (strategy.kind === "label") {
         const targets = labels ? labelTargets(document, labels, strategy) : [];
         for (const target of targets)
