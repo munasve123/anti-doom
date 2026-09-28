@@ -1,0 +1,12 @@
+node_modules/
+dist/
+fixtures/incoming/
+.env*
+.fixture-denylist.local
+playwright-report/
+test-results/
+coverage/
+*.p8
+*.p12
+*.cer
+*.mobileprovision

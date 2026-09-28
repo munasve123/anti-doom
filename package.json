@@ -1,0 +1,41 @@
+{
+  "name": "anti-doom",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Strips Instagram's attention traps out of instagram.com in iPhone Safari.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/munasve123/anti-doom.git"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node scripts/build.mjs --watch",
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:unit": "vitest run tests/unit",
+    "test:fixtures": "vitest run tests/fixtures",
+    "test:browser": "playwright test",
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "scan:fixtures": "node scripts/scan-fixtures.mjs",
+    "fixture:add": "node scripts/fixture-add.mjs",
+    "deploy:icloud": "node scripts/deploy-icloud.mjs",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test:unit && npm run test:fixtures && npm run build && npm run check:bundle && npm run scan:fixtures && npm run test:browser"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "esbuild": "0.28.2",
+    "eslint": "10.11.0",
+    "jsdom": "30.1.1",
+    "prettier": "3.9.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.1",
+    "vitest": "5.0.2"
+  }
+}

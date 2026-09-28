@@ -1,0 +1,8 @@
+reference/
+dist/
+fixtures/
+coverage/
+playwright-report/
+test-results/
+package-lock.json
+*.md
