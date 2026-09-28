@@ -2,6 +2,8 @@
 
 ## What Anti-Doom guarantees
 
+Status: Anti-Doom hasn't had a release yet. The build checks that enforce "no network" are in place and tested now. The rest describes how the first release is built, and holds from that release on.
+
 - Scope: it matches only https://www.instagram.com/* and https://instagram.com/*.
 - Login and security pages: /accounts/* and /challenge/* are excluded in the userscript metadata, and the engine also refuses to start on them. Passwords are typed into pages this code never runs on.
 - No network: the shipped code makes no requests of any kind. ESLint and an independent bundle check fail the build if a network or code-injection primitive appears.
